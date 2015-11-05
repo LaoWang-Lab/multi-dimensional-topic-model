@@ -1,7 +1,9 @@
 __author__ = 'Linwei'
 
 import numpy as np
-from settings import H, E, M, T, alpha, beta, gamma, wordsOfEachTopic as wot
+import os, json
+from settings import H, E, M, T, alpha, beta, gamma, wordsOfEachTopic as wot, docDir, outputDir
+
 
 def n2s(counts):
     """convert a counts vector to corresponding samples"""
@@ -38,7 +40,7 @@ class mylda:
 
     def readCorpus(self):
         for i in range(M):
-            self.readDoc("data/%d.dat"%i)
+            self.readDoc(docDir + os.path.sep + "%d.dat"%i)
 
     def sampleDim(self, m, i):
         hi = self._s_mi[m][i]
@@ -120,35 +122,21 @@ class mylda:
         # print("sample is OK!")
 
     def output_topic(self, iteration):
-        import os
-        dirName = "output/E%d_wot%d_M%d" % (E, wot, M)
-        try:
-            os.makedirs(dirName)
-        except:
-            pass
-        with open(dirName + "/iter%d.txt" % iteration,'wt') as f:
-            f.write('absolute value of delta n_het:\n')
-            f.write(str(self._abs_delta_het)+'\n')
-            for h in range(H):
-                f.write("h:%d\n"%h)
-                for e in range(E):
-                    f.write("e%d:"%e)
-                    f.write(str(self._n_het[h,e,:]))
-                    f.write('\n')
+        if not os.path.exists(outputDir):
+            os.mkdir(outputDir)
+        result = {'H':H,'E':E,'M':M,'wot':wot,'iter':iteration,'topic':[[[],] * E,]*H}
+        for h in range(H):
+            for e in range(E):
+                result['topic'][h][e] = list(self._n_het[h,e,:])
 
-def main():
-    model = mylda()
-    model.readCorpus()
-    model.train_corpus(1)
-    prev_het = np.zeros(np.shape(model._n_het))
-    np.copyto(prev_het, model._n_het)
-    for i in range(10):
-        print 'iter %d - pure python' % (i+1)
-        model.train_corpus(1)
-        model._abs_delta_het = np.abs(model._n_het - prev_het)
-        np.copyto(prev_het, model._n_het)
-        if i%5 == 0:
-            model.output_topic(i)
+        with open(outputDir + os.path.sep + "H%dE%d_wot%d_M%d_iter%d.json" % (H, E, wot, M, iteration),'w') as f:
+            json.dump(result, f)
+
 
 if __name__ == "__main__":
-    main()
+    go = mylda()
+    go.readCorpus()
+    for i in range(1000):
+        go.train_corpus(1)
+        if i%5 == 0:
+            go.output_topic(i)
