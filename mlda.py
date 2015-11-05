@@ -1,7 +1,7 @@
 __author__ = 'Linwei'
 
 import numpy as np
-import os
+import os, json
 from settings import H, E, M, T, alpha, beta, gamma, wordsOfEachTopic as wot, docDir, outputDir
 
 def n2s(counts):
@@ -125,13 +125,13 @@ class mylda:
     def output_topic(self, iteration):
         if not os.path.exists(outputDir):
             os.mkdir(outputDir)
-        with open(outputDir + os.path.sep + "E%d_wot%d_M%d_iter%d.txt" % (E, wot, M, iteration),'wt') as f:
-            for h in range(H):
-                f.write("h:%d\n"%h)
-                for e in range(E):
-                    f.write("e%d:"%e)
-                    f.write(str(self._n_het[h,e,:]))
-                    f.write('\n')
+        result = {'H':H,'E':E,'M':M,'wot':wot,'iter':iteration,'topic':[[[],] * E,]*H}
+        for h in range(H):
+            for e in range(E):
+                result['topic'][h][e] = list(self._n_het[h,e,:])
+
+        with open(outputDir + os.path.sep + "H%dE%d_wot%d_M%d_iter%d.json" % (H, E, wot, M, iteration),'w') as f:
+            json.dump(result, f)
 
 
 if __name__ == "__main__":
