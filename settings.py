@@ -14,3 +14,6 @@ gamma = 10
 
 wordsOfEachTopic = 2
 T = H * E * wordsOfEachTopic
+
+docDir = 'docSrc'
+outputDir = 'trainedTopic'

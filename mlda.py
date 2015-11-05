@@ -1,7 +1,8 @@
 __author__ = 'Linwei'
 
 import numpy as np
-from settings import H, E, M, T, alpha, beta, gamma, wordsOfEachTopic as wot
+import os
+from settings import H, E, M, T, alpha, beta, gamma, wordsOfEachTopic as wot, docDir, outputDir
 
 def n2s(counts):
     """convert a counts vector to corresponding samples"""
@@ -38,7 +39,7 @@ class mylda:
 
     def readCorpus(self):
         for i in range(M):
-            self.readDoc("%d.dat"%i)
+            self.readDoc(docDir + os.path.sep + "%d.dat"%i)
 
     def sampleDim(self, m, i):
         hi = self._s_mi[m][i]
@@ -122,7 +123,9 @@ class mylda:
         # print("sample is OK!")
 
     def output_topic(self, iteration):
-        with open("E%d_wot%d_M%d_iter%d.txt" % (E, wot, M, iteration),'wt') as f:
+        if not os.path.exists(outputDir):
+            os.mkdir(outputDir)
+        with open(outputDir + os.path.sep + "E%d_wot%d_M%d_iter%d.txt" % (E, wot, M, iteration),'wt') as f:
             for h in range(H):
                 f.write("h:%d\n"%h)
                 for e in range(E):
