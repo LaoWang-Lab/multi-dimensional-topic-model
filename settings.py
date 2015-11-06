@@ -5,15 +5,14 @@ __author__ = "Linwei Li"
 
 H = 2
 E = 3
-M = 600
+M = 300
 N = 200
 
 alpha = 1
 beta = 0.1
 gamma = 10
 
-wordsOfEachTopic = 2
-T = H * E * wordsOfEachTopic
+wordsOfEachTopic = 1
 
 docDir = 'docSrc'
 outputDir = 'trainedTopic'
@@ -22,3 +21,5 @@ try:
     from localSettings import *
 except:
     pass
+
+T = H * E * wordsOfEachTopic
