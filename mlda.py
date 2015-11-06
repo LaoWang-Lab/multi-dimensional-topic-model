@@ -126,9 +126,7 @@ class mylda:
         if not os.path.exists(outputDir):
             os.mkdir(outputDir)
         result = {'H':H,'E':E,'M':M,'wot':wot,'iter':iteration,'topic':[[[],] * E,]*H}
-        for h in range(H):
-            for e in range(E):
-                result['topic'][h][e] = list(self._n_het[h,e,:])
+        result['topic'] = self._n_het.tolist()
 
         with open(outputDir + os.path.sep + "H%dE%d_wot%d_M%d_iter%d.json" % (H, E, wot, M, iteration),'w') as f:
             json.dump(result, f)
