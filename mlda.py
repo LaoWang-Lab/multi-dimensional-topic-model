@@ -135,8 +135,12 @@ class mylda:
 if __name__ == "__main__":
     go = mylda()
     go.readCorpus()
+    net_previous = go._n_het
     for i in range(1000):
         go.train_corpus(1)
+        delta = go._n_het - net_previous
+        print("iter:%d\t" % i, abs(delta).sum()/net_previous.sum(), '\n')
+        net_previous = go._n_het
         if i%5 == 0:
             go.output_topic(i)
 
