@@ -60,3 +60,4 @@ target/
 
 docSrc/*
 trainedTopic/*
+localSettings.py

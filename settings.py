@@ -4,8 +4,8 @@
 __author__ = "Linwei Li"
 
 H = 2
-E = 2
-M = 200
+E = 3
+M = 600
 N = 200
 
 alpha = 1
@@ -17,3 +17,8 @@ T = H * E * wordsOfEachTopic
 
 docDir = 'docSrc'
 outputDir = 'trainedTopic'
+
+try:
+    from localSettings import *
+except:
+    pass
