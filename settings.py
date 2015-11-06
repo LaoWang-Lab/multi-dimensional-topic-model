@@ -13,7 +13,6 @@ beta = 0.1
 gamma = 10
 
 wordsOfEachTopic = 2
-T = H * E * wordsOfEachTopic
 
 docDir = 'docSrc'
 outputDir = 'trainedTopic'
@@ -22,3 +21,5 @@ try:
     from localSettings import *
 except:
     pass
+
+T = H * E * wordsOfEachTopic
