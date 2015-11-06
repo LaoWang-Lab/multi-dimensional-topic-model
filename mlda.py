@@ -134,27 +134,13 @@ class mylda:
 def main():
     go = mylda()
     go.readCorpus()
-<<<<<<< HEAD
-    go._prev_n_het = np.zeros(np.shape(go._n_het))
-    for i in range(2):
-        print('iter %d' % i)
-
-        go.train_corpus(1) 
-        
-#        go._delta_n_het = np.linalg.norm(go._n_het - go._prev_n_het) / np.linalg.norm(go._n_het)
-        go._delta_n_het = np.linalg.norm(go._n_het - go._prev_n_het)
-        np.copyto(go._prev_n_het, go._n_het)
-        print('delta_n_het %f' % go._delta_n_het)
-
-=======
-    net_previous = go._n_het
+    net_previous = go._n_het.copy()
     for i in range(1000):
         go.train_corpus(1)
         delta = go._n_het - net_previous
-        print("iter:%d\t" % i, abs(delta).sum()/net_previous.sum(), '\n')
-        net_previous = go._n_het
->>>>>>> b879595cdf6d3233d59be4d2d0cae3dfc6e6b3df
-        if i%5 == 0:
+        print("iter:%d\t" % i, abs(delta).sum()/net_previous.sum())
+        net_previous = go._n_het.copy()
+        if i%1 == 0:
             go.output_topic(i)
             
 if __name__ == "__main__":
