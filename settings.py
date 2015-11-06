@@ -4,12 +4,11 @@
 __author__ = "Linwei Li"
 
 H = 2
-E = 2
+E = 5
 M = 200
 N = 200
 
 alpha = 1
-
 beta = 0.1
 gamma = 10
 
@@ -18,3 +17,4 @@ T = H * E * wordsOfEachTopic
 
 docDir = 'docSrc'
 outputDir = 'trainedTopic'
+M = 1000
