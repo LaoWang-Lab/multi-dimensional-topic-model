@@ -124,7 +124,7 @@ class mylda:
     def output_topic(self, iteration):
         if not os.path.exists(outputDir):
             os.mkdir(outputDir)
-        result = {'H':H,'E':E,'M':M,'wot':wot,'iter':iteration,'topic':[[[],] * E,]*H}
+        result = {'H':H,'E':E,'M':M,'wot':wot,'iter':iteration,'topic':[[[],] * E,]*H, 'delta':self._delta_n_het}
         for h in range(H):
             for e in range(E):
                 result['topic'][h][e] = list(self._n_het[h,e,:])
@@ -133,10 +133,22 @@ class mylda:
             json.dump(result, f)
 
 
-if __name__ == "__main__":
+def main():
     go = mylda()
     go.readCorpus()
-    for i in range(1000):
-        go.train_corpus(1)
+    go._prev_n_het = np.zeros(np.shape(go._n_het))
+    for i in range(2):
+        print('iter %d' % i)
+
+        go.train_corpus(1) 
+        
+#        go._delta_n_het = np.linalg.norm(go._n_het - go._prev_n_het) / np.linalg.norm(go._n_het)
+        go._delta_n_het = np.linalg.norm(go._n_het - go._prev_n_het)
+        np.copyto(go._prev_n_het, go._n_het)
+        print('delta_n_het %f' % go._delta_n_het)
+
         if i%5 == 0:
             go.output_topic(i)
+            
+if __name__ == "__main__":
+    main()
