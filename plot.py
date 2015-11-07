@@ -15,7 +15,7 @@ def showTopic(jsonFile):
         data = json.load(f)
     H, E, M, wot, iter = data['H'], data['E'], data['M'], data['wot'], data['iter']
     fig, axs = plt.subplots(E, H, figsize=(2.5 * E, 3.5 *H), sharex=True)
-    fig.suptitle('H:%d E:%d M:%d wot:%d iter:%d' % (H, E, M, wot, iter), fontsize=14, fontweight='bold')
+    fig.suptitle('H:%d E:%d M:%d wot:%d iter:%d' % (H, E, M, wot, iter), fontsize=20, fontweight='bold')
     n_het = np.array(data['topic'])
     x = np.arange(data['T'])
     for e in range(data['E']):
