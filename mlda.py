@@ -125,7 +125,7 @@ class mylda:
         _dir = outputDir + os.path.sep + "H%dE%d_wot%d_M%d" % (H, E, wot, M) + os.path.sep
         if not os.path.exists(_dir):
             os.makedirs(_dir)
-        result = {'H':H,'E':E,'M':M,'wot':wot,'iter':iteration,'topic':[[[],] * E,]*H,'delta_n_het':self._delta_n_het}
+        result = {'H':H,'E':E,'M':M,'wot':wot,'iter':iteration,'T':T,'topic':[[[],] * E,]*H,'delta_n_het':self._delta_n_het}
         result['topic'] = self._n_het.tolist()
 
         with open(_dir + "iter%d.json" % iteration,'w') as f:
@@ -135,15 +135,14 @@ class mylda:
 def main():
     go = mylda()
     go.readCorpus()
-    go._n_het_previous = np.zeros(np.shape(go._n_het))
-#    np.copyto(go._n_het_previous, go._n_het)
+    go._n_het_previous = go._n_het.copy()
     go._n_word = go._n_het.sum()
     countdown = 10
     for i in range(500):
         go.train_corpus(1)
         go._delta_n_het = (np.abs(go._n_het - go._n_het_previous).sum()/go._n_word)
         print("iter %d\t" % i, go._delta_n_het)
-        np.copyto(go._n_het_previous, go._n_het)
+        go._n_het_previous = go._n_het.copy()
         if i%1 == 0:
             go.output_topic(i)
 
