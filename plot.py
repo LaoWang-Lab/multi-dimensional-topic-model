@@ -8,7 +8,7 @@ import seaborn as sns
 import json
 import argparse
 
-from settings import outputDir, T
+from settings import outputDir
 
 def showTopic(jsonFile):
     with open(jsonFile) as f:
