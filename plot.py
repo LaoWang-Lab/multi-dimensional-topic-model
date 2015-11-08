@@ -7,14 +7,15 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import json
 import argparse
-from settings import H, E, M, wordsOfEachTopic as wot, T
-
-from settings import outputDir
+from settings import wordsOfEachTopic as wot, T, outputDir
 
 def showTopic(jsonFile):
     with open(jsonFile) as f:
         data = json.load(f)
-    fig, axs = plt.subplots(data['E'], data['H'], figsize=(8, 6), sharex=True)
+    M = data['M']
+    H = data['H']
+    E = data['E']
+    fig, axs = plt.subplots(E, H, figsize=(8, 6), sharex=True)
     fig.suptitle('H:%d E:%d M:%d wot:%d' % (H,E,M,wot))
     n_het = np.array(data['topic'])
     x = np.arange(T)
