@@ -63,3 +63,4 @@ trainedTopic/*
 localSettings.py
 
 _cymlda.c
+harvest*
