@@ -18,6 +18,7 @@ def plot_fig(json_file, save_fig=False):
     fig, axs = plt.subplots(E, H, figsize=(2.5 * E, 3.5 *H), sharex=True)
     fig.suptitle('H:%d E:%d M:%d wot:%d iter:%d' % (H, E, M, wot, iter), fontsize=20, fontweight='bold')
     n_het = np.array(data['topic'])
+    y_limits_max = 1.05 * n_het.sum() / (E * H * wot)
     x = np.arange(data['T'])
     for e in range(data['E']):
         for h in range(data['H']):
@@ -25,6 +26,7 @@ def plot_fig(json_file, save_fig=False):
             sns.barplot(x, n_het[h,e,:], palette="Set3", ax=axs[e][h])
             axs[e][h].set_ylabel("counts")
             axs[e][h].set_title("h:%d e:%d" % (h,e))
+            axs[e][h].set_ylim([0, y_limits_max])
     plt.tight_layout()
     fig.subplots_adjust(top=0.9)
     if save_fig:
