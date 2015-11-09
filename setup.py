@@ -1,6 +1,10 @@
 from distutils.core import setup, Extension
 from Cython.Build import cythonize
+import numpy as np
 
 ext = Extension(name='_cymlda', sources=['_cymlda.pyx'])
 
-setup(ext_modules=cythonize(ext))
+setup(
+    ext_modules=cythonize(ext),
+    include_dirs = [np.get_include()]
+)
