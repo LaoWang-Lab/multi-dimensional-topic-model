@@ -18,6 +18,7 @@ docDir = 'docSrc'
 outputDir = 'trainedTopic'
 iter_max = 500
 run_num = 10
+pureness = 0.9
 
 try:
     from localSettings import *
