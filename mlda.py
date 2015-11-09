@@ -2,7 +2,7 @@ __author__ = 'Linwei'
 
 import numpy as np
 import os, json
-from settings import H, E, M, T, alpha, beta, gamma, wordsOfEachTopic as wot, docDir, outputDir
+from settings import H, E, M, T, alpha, beta, gamma, wordsOfEachTopic as wot, docDir, outputDir, iter_max
 
 
 def n2s(counts):
