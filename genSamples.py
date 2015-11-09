@@ -32,9 +32,12 @@ def gen_document(m, prefix=docDir):
                 # docGen = random.sample()
                 # f.write("%d %d\n"%(t, topics_counts[s]))
 
-if __name__ == "__main__":
+def gen_corpus(docDir=docDir):
     if not os.path.exists(docDir):
         os.mkdir(docDir)
     for m in range(M):
         gen_document(m)
 
+
+if __name__ == "__main__":
+    gen_corpus(docDir=docDir)

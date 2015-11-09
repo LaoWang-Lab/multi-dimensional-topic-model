@@ -2,7 +2,7 @@ __author__ = 'Linwei'
 
 import numpy as np
 import os, json, sys
-from settings import H, E, M, T, alpha, beta, gamma, wordsOfEachTopic as wot, docDir, outputDir, iter_max
+from settings import H, E, M, T, alpha, beta, gamma, wordsOfEachTopic as wot, docDir, outputDir, iter_max, run_num
 
 import _cymlda
 
@@ -96,18 +96,18 @@ class mylda:
         # self.test_n()
         # print("sample is OK!")
 
-    def output_topic(self, iteration):
-        _dir = outputDir + os.path.sep + "H%dE%d_wot%d_M%d" % (H, E, wot, M) + os.path.sep
+    def output_topic(self, run_id, iteration):
+        _dir = outputDir + os.path.sep + "H%dE%d_wot%d_M%d" % (H, E, wot, M) + os.path.sep + "run%d" % run_id
         if not os.path.exists(_dir):
             os.makedirs(_dir)
         result = {'H':H,'E':E,'M':M,'wot':wot,'iter':iteration,'T':T,'topic':[[[],] * E,]*H,'delta_n_het':self._delta_n_het}
         result['topic'] = self._n_het.tolist()
 
-        with open(_dir + "iter%d.json" % iteration,'w') as f:
+        with open(os.path.join(_dir, "iter%d.json" % iteration),'w') as f:
             json.dump(result, f)
 
-
-def main():
+def run_once(run_id=1):
+    print("run_id: %d" % run_id)
     go = mylda()
     go.readCorpus()
     go._n_het_previous = go._n_het.copy()
@@ -118,13 +118,15 @@ def main():
         go._delta_n_het = (np.abs(go._n_het - go._n_het_previous).sum()/go._n_word)
         print("iter %d\t" % i, go._delta_n_het)
         go._n_het_previous = go._n_het.copy()
-        if i%1 == 0:
-            go.output_topic(i)
+        go.output_topic(run_id, i)
 
         if go._delta_n_het < 1e-4:
             countdown -= 1
         if countdown == 0:
-            break    
-            
+            break
+
+def main():
+    run_once(1)
+
 if __name__ == "__main__":
     main()

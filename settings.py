@@ -16,6 +16,8 @@ wordsOfEachTopic = 1
 
 docDir = 'docSrc'
 outputDir = 'trainedTopic'
+iter_max = 500
+run_num = 10
 
 try:
     from localSettings import *
@@ -23,4 +25,3 @@ except:
     pass
 
 T = H * E * wordsOfEachTopic
-iter_max = 500
