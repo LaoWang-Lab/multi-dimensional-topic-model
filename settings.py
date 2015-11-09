@@ -23,3 +23,4 @@ except:
     pass
 
 T = H * E * wordsOfEachTopic
+iter_max = 500
