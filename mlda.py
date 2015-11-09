@@ -137,7 +137,7 @@ def main():
     go._n_het_previous = go._n_het.copy()
     go._n_word = go._n_het.sum()
     countdown = 10
-    for i in range(30):
+    for i in range(iter_max):
         go.train_corpus(1)
         go._delta_n_het = (np.abs(go._n_het - go._n_het_previous).sum()/go._n_word)
         print("iter %d\t" % i, go._delta_n_het)

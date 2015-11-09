@@ -100,7 +100,7 @@ class mylda:
         _dir = outputDir + os.path.sep + "H%dE%d_wot%d_M%d" % (H, E, wot, M) + os.path.sep
         if not os.path.exists(_dir):
             os.makedirs(_dir)
-        result = {'H':H,'E':E,'M':M,'wot':wot,'iter':iteration,'topic':[[[],] * E,]*H,'delta_n_het':self._delta_n_het}
+        result = {'H':H,'E':E,'M':M,'wot':wot,'iter':iteration,'T':T,'topic':[[[],] * E,]*H,'delta_n_het':self._delta_n_het}
         result['topic'] = self._n_het.tolist()
 
         with open(_dir + "iter%d.json" % iteration,'w') as f:
