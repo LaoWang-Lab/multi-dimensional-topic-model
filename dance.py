@@ -9,7 +9,7 @@ def dance(png_dir, gif):
     os.chdir(png_dir)
     if gif in os.listdir('.'):
         os.remove(gif)
-        subprocess.Popen('convert -delay 10 -loop 0 %s/*.png %s' % (png_dir, gif), shell=True, stdout=subprocess.PIPE).stdout.read()
+    subprocess.Popen('convert -delay 10 -loop 0 %s/*.png %s' % (png_dir, gif), shell=True, stdout=subprocess.PIPE).stdout.read()
 
 def dance_all():
     curdir = os.getcwd()
