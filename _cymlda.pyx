@@ -18,15 +18,25 @@ cpdef _train_corpus(int[:,:,:] nhet, int[:,:] nhe, int[:,:] nmh, int[:] tmw, int
         int m, wc, w, hw
         int M = nmh.shape[0]
         int H = nhe.shape[0]
+        int E = nhe.shape[1]
+        double *theta = <double *>malloc(H*sizeof(double))
+        double *phi_t = <double *>malloc(H*sizeof(double))
+        double *tmp_h = <double *>malloc(H*sizeof(double))
+        double *tmp_e = <double *>malloc(E*sizeof(double))
 
     for m in range(M):
         wc = nmw[0, m] # word count
         for w in range(wc):
-            _sample_dim(nhet, nhe, nmh, tmw, hmw, nmw, zmh, alpha, beta, gamma, m, w)
+            _sample_dim(nhet, nhe, nmh, tmw, hmw, nmw, zmh, alpha, beta, m, w, theta, phi_t, tmp_h)
         for hw in range(H):
-            _sample_topic(nhet, nhe, nmh, tmw, hmw, nmw, zmh, alpha, beta, gamma, m, hw)
+            _sample_topic(nhet, nhe, nmh, tmw, hmw, nmw, zmh, beta, gamma, m, hw, tmp_e)
+            
+    free(theta)
+    free(phi_t)
+    free(tmp_h)
+    free(tmp_e)
 
-cdef _sample_dim(int[:,:,:] nhet, int[:,:] nhe, int[:,:] nmh, int[:] tmw, int[:] hmw, int[:,:] nmw, int[:,:] zmh, double alpha, double beta, double gamma, int m, int w):
+cdef _sample_dim(int[:,:,:] nhet, int[:,:] nhe, int[:,:] nmh, int[:] tmw, int[:] hmw, int[:,:] nmw, int[:,:] zmh, double alpha, double beta, int m, int w, double *theta, double *phi_t, double *tmp_h):
     cdef:
         int t, h, z
         double cum
@@ -35,9 +45,6 @@ cdef _sample_dim(int[:,:,:] nhet, int[:,:] nhe, int[:,:] nmh, int[:] tmw, int[:]
         int zw = zmh[m, hw]
         int H = nhe.shape[0]
         int T = nhet.shape[2]
-        double *theta = <double *>malloc(H*sizeof(double))
-        double *phi_t = <double *>malloc(H*sizeof(double))
-        double *tmp = <double *>malloc(H*sizeof(double))
 
     dec(nmh[m, hw])
     dec(nhet[hw, zw, tw])
@@ -58,15 +65,15 @@ cdef _sample_dim(int[:,:,:] nhet, int[:,:] nhe, int[:,:] nmh, int[:] tmw, int[:]
 
     cum = 0
     for h in range(H):
-        tmp[h] = theta[h] * phi_t[h]
-        cum += tmp[h]
+        tmp_h[h] = theta[h] * phi_t[h]
+        cum += tmp_h[h]
     for h in range(H):
-        tmp[h] /= cum
+        tmp_h[h] /= cum
 
     cum = <double>rand() / <double>RAND_MAX
     hw = H - 1
     for h in range(H):
-        cum -= tmp[h]
+        cum -= tmp_h[h]
         if cum < 0:
             hw = h
             break
@@ -77,11 +84,8 @@ cdef _sample_dim(int[:,:,:] nhet, int[:,:] nhe, int[:,:] nmh, int[:] tmw, int[:]
     inc(nhet[hw, zw, tw])
     hmw[nmw[1, m] + w] = hw
 
-    free(theta)
-    free(phi_t)
-    free(tmp)
 
-cdef _sample_topic(int[:,:,:] nhet, int[:,:] nhe, int[:,:] nmh, int[:] tmw, int[:] hmw, int[:,:] nmw, int[:,:] zmh, double alpha, double beta, double gamma, int m, int hw):
+cdef _sample_topic(int[:,:,:] nhet, int[:,:] nhe, int[:,:] nmh, int[:] tmw, int[:] hmw, int[:,:] nmw, int[:,:] zmh, double beta, double gamma, int m, int hw, double *tmp_e):
     cdef:
         int wi, tw, w, e, ee
         double r, cum, tcum, pTi
@@ -90,7 +94,6 @@ cdef _sample_topic(int[:,:,:] nhet, int[:,:] nhe, int[:,:] nmh, int[:] tmw, int[
         int E = nhet.shape[1]
         int T = nhet.shape[2]
         int W = nmw[0, m]
-        double *tmp = <double *>malloc(H*sizeof(double))
         list wI = list()
 
     dec(nhe[hw, zw])
@@ -115,15 +118,15 @@ cdef _sample_topic(int[:,:,:] nhet, int[:,:] nhe, int[:,:] nmh, int[:] tmw, int[
             pTi = (nhet[hw, e, tw] + beta) / cum
             r *= pTi
 
-        tmp[e] = r
+        tmp_e[e] = r
         tcum += r
     for e in range(E):
-        tmp[e] /= tcum
+        tmp_e[e] /= tcum
 
     cum = <double>rand() / <double>RAND_MAX
     zw = E - 1
     for e in range(E):
-        cum -= tmp[e]
+        cum -= tmp_e[e]
         if cum < 0:
             zw = e
             break
@@ -133,4 +136,3 @@ cdef _sample_topic(int[:,:,:] nhet, int[:,:] nhe, int[:,:] nmh, int[:] tmw, int[
     for wi in wI:
         inc(nhet[hw, zw, tmw[nmw[1, m] + wi]])
 
-    free(tmp)
