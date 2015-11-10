@@ -37,7 +37,7 @@ def plot_fig(json_file, save_fig=False):
     plt.close()
 
 def plot_fig_in_dir(json_dir):
-     for json_file in os.listdir(json_dir):
+     for json_file in sorted(os.listdir(json_dir)):
         if json_file.endswith('json'):
             plot_fig(json_dir+'/'+json_file, save_fig=True)
             print('ploting %s' % json_file)
