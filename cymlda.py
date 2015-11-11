@@ -45,6 +45,8 @@ class mylda:
 
     def readCorpus(self):
         for i in range(M):
+            if i % 200 == 0:
+                print('read docs: %d' % i)
             self.readDoc(docDir + os.path.sep + "%d.dat"%i)
 
         self._n_mh = self._n_mh.astype(dtype=np.int32)
@@ -112,18 +114,12 @@ def run_once(run_id=1):
     go.readCorpus()
     go._n_het_previous = go._n_het.copy()
     go._n_word = go._n_het.sum()
-#    countdown = 100
     for i in range(iter_max):
         go.train_corpus(1)
         go._delta_n_het = (np.abs(go._n_het - go._n_het_previous).sum()/go._n_word)
         print("iter %d\t%.10f" % (i, go._delta_n_het))
         go._n_het_previous = go._n_het.copy()
         go.output_topic(run_id, i)
-
-#        if go._delta_n_het < 1e-4:
-#            countdown -= 1
-#        if countdown == 0:
-#            break
 
 def main():
     run_once(1)

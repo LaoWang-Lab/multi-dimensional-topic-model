@@ -8,12 +8,12 @@ from libc.stdlib cimport malloc, free, srand, rand, RAND_MAX
 import numpy as np
 cimport numpy as np
 
-cdef extern from "time.h" nogil:
-    ctypedef int time_t
-    time_t time(time_t*)
+#cdef extern from "time.h" nogil:
+#    ctypedef int time_t
+#    time_t time(time_t*)
 
 cpdef _train_corpus(int[:,:,:] nhet, int[:,:] nhe, int[:,:] nmh, int[:] tmw, int[:] hmw, int[:,:] nmw, int[:,:] zmh, double alpha, double beta, double gamma):
-    srand(time(NULL))
+#    srand(time(NULL))
     cdef:
         int m, wc, w, hw
         int M = nmh.shape[0]
