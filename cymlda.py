@@ -2,7 +2,8 @@ __author__ = 'Linwei'
 
 import numpy as np
 import os, json, sys
-from settings import H, E, M, T, alpha, beta, gamma, wordsOfEachTopic as wot, docDir, outputDir, iter_max, run_num
+from glob import glob
+from settings import H, E, M, T, alpha, beta, gamma, wordsOfEachTopic as wot, docDir, outputDir, iter_max, run_num, docExt
 
 import _cymlda
 
@@ -18,7 +19,15 @@ def n2s(counts):
     return samples
 
 class mylda:
-    def __init__(self, H=H, E=E, M=M, T=T):
+    def __init__(self, H=H, E=E, M=M, T=T, dictionary=None, docDir=None):
+
+        if Dictionary:
+            self._dictionary = [x[:-1] for x in open(dictionary)]
+            T = len(self._dictionary)
+
+        if docDir:
+            self._docDir = docDir
+            M = len(glob(os.path.join(docDir, docExt)))
         self._n_mh = np.zeros((M, H)) # counts for words in document m which were labeled as in dimension h
         self._n_het = np.zeros((H, E, T)) # counts for word type t in topic h,e
         self._n_he = np.zeros((H, E)) # counts for documents which were labeled as in topic e for dimension h

@@ -15,6 +15,7 @@ gamma = 10
 wordsOfEachTopic = 1
 
 docDir = 'docSrc'
+docExt = '*.txt'
 outputDir = 'trainedTopic'
 iter_max = 500
 run_num = 10
