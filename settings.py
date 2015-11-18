@@ -4,26 +4,19 @@
 __author__ = "Linwei Li"
 
 H = 2
-E = 3
-M = 300
-N = 200
+E = 10
 
 alpha = 1
 beta = 0.1
 gamma = 10
 
-wordsOfEachTopic = 1
-
 docDir = 'docSrc'
-docExt = '*.txt'
 outputDir = 'trainedTopic'
+dictionary = 'dictnostops.txt'
 iter_max = 500
 run_num = 10
-pureness = 0.9
 
 try:
     from localSettings import *
 except:
     pass
-
-T = H * E * wordsOfEachTopic

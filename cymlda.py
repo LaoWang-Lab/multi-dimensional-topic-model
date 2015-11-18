@@ -1,11 +1,10 @@
 __author__ = 'Linwei'
 
 import numpy as np
-import os, json, sys
-from glob import glob
-from settings import H, E, M, T, alpha, beta, gamma, wordsOfEachTopic as wot, docDir, outputDir, iter_max, run_num, docExt
+import os, json, sys, re
 
 import _cymlda
+from settings import H, E, alpha, beta, gamma, docDir, outputDir, iter_max, run_num, dictionary
 
 PY2 = sys.version_info[0] == 2
 if PY2:
@@ -18,27 +17,36 @@ def n2s(counts):
         samples = samples + (value,)*count
     return samples
 
+
 class mylda:
-    def __init__(self, H=H, E=E, M=M, T=T, dictionary=None, docDir=None):
+    def __init__(self, H=H, E=E, dictionary=dictionary, docDir=docDir):
 
-        if Dictionary:
-            self._dictionary = [x[:-1] for x in open(dictionary)]
-            T = len(self._dictionary)
+        self._dictionary = {x[:-1]:i for (i, x) in enumerate(open(dictionary))}
+        self.T = len(self._dictionary)
 
-        if docDir:
-            self._docDir = docDir
-            M = len(glob(os.path.join(docDir, docExt)))
-        self._n_mh = np.zeros((M, H)) # counts for words in document m which were labeled as in dimension h
-        self._n_het = np.zeros((H, E, T)) # counts for word type t in topic h,e
+        self._docDir = docDir
+        self.M = len(os.listdir(docDir))
+
+        self._n_mh = np.zeros((self.M, H)) # counts for words in document m which were labeled as in dimension h
+        self._n_het = np.zeros((H, E, self.T)) # counts for word type t in topic h,e
         self._n_he = np.zeros((H, E)) # counts for documents which were labeled as in topic e for dimension h
-        self._z_mh = np.random.randint(E, size=(M, H)) # value of zi for document m and dimension h
-        self._w_mi = [[],]* M # value of wi for document m
-        self._s_mi = [[],] * M # value of si for document m
+        self._z_mh = np.random.randint(E, size=(self.M, H)) # value of zi for document m and dimension h
+        self._w_mi = [[],]* self.M # value of wi for document m
+        self._s_mi = [[],] * self.M # value of si for document m
         self.n_loaded = 0 # counts for documents loaded
 
     def readDoc(self, fname):
         m = self.n_loaded
-        self._w_mi[m] = np.genfromtxt(fname, delimiter=',')
+        # self._w_mi[m] = np.genfromtxt(fname, delimiter=',')
+        doc = open(fname).read().lower()
+        doc = re.sub(r'\n', ' ', doc)
+        doc = re.sub(r'-', ' ', doc)
+        doc = re.sub(r'[^a-z ]', '', doc)
+        doc = re.sub(r' +', ' ', doc)
+        words = doc.split()
+        words_in_use = filter(lambda x:x in self._dictionary.keys(), words)
+        self._w_mi[m] = np.array([self._dictionary[x] for x in words_in_use])
+        
         n = len(self._w_mi[m])
         self._n_mh[m] = np.random.multinomial(n, (1/H,)*H)
         self._z_mh[m] = np.random.randint(E, size=H)
@@ -50,19 +58,13 @@ class mylda:
         for (i, s) in enumerate(self._s_mi[m]):
             self._n_het[s, self._z_mh[m,s], self._w_mi[m][i]] = self._n_het[s, self._z_mh[m,s], self._w_mi[m][i]] + 1
 
-        self.n_loaded = self.n_loaded + 1
+        self.n_loaded += 1
 
-    def readCorpus(self):
-        for i in range(M):
-            if i % 200 == 0:
-                print('read docs: %d' % i)
-            self.readDoc(docDir + os.path.sep + "%d.dat"%i)
-
+    def list2np(self):
         self._n_mh = self._n_mh.astype(dtype=np.int32)
         self._n_he = self._n_he.astype(dtype=np.int32)
         self._n_het = self._n_het.astype(dtype=np.int32)
         self._z_mh = self._z_mh.astype(dtype=np.int32)
-
         nmw = [None, None]
         nmw[0] = [len(doc) for doc in self._w_mi]
         nmw[1] = [0] + nmw[0][:-1]
@@ -82,21 +84,29 @@ class mylda:
             self._s_mi_.extend(i)
         self._s_mi_ = np.asarray(self._s_mi_, dtype=np.int32)
 
+    def readCorpus(self):
+        for i, docName in enumerate(os.listdir(self._docDir)):
+            if i % 20 == 0:
+                print('read docs: %d' % i)
+            self.readDoc(os.path.join(self._docDir, docName))
+
+        self.list2np()
+
     def test_n(self):
-        for m in range(M):
+        for m in range(self.M):
             for h in range(H):
                 assert self._n_mh[m,h] == len(np.where(self._s_mi[m]==h)[0])
         for h in range(H):
             for e in range(E):
                 assert self._n_he[h,e] == len(np.where(self._z_mh[:,h]==e)[0])
-        test_n_het = np.zeros((H,E,T))
-        for m in range(M):
+        test_n_het = np.zeros((H,E,self.T))
+        for m in range(self.M):
             for (i,t) in enumerate(self._w_mi[m]):
                 h = self._s_mi[m][i]
                 test_n_het[h, self._z_mh[m,h], t] += 1
         for h in range(H):
             for e in range(E):
-                for t in range(T):
+                for t in range(self.T):
                     assert test_n_het[h,e,t] == self._n_het[h,e,t]
 
     def train_corpus(self, n_iter):
@@ -108,10 +118,10 @@ class mylda:
         # print("sample is OK!")
 
     def output_topic(self, run_id, iteration):
-        _dir = outputDir + os.path.sep + "H%dE%d_wot%d_M%d" % (H, E, wot, M) + os.path.sep + "run%d" % run_id
+        _dir = outputDir + os.path.sep + "H%dE%d_M%d" % (H, E, self.M) + os.path.sep + "run%d" % run_id
         if not os.path.exists(_dir):
             os.makedirs(_dir)
-        result = {'H':H,'E':E,'M':M,'wot':wot,'iter':iteration,'T':T,'topic':[[[],] * E,]*H,'delta_n_het':self._delta_n_het}
+        result = {'H':H,'E':E,'M':self.M,'iter':iteration,'T':self.T,'topic':[[[],] * E,]*H,'delta_n_het':self._delta_n_het}
         result['topic'] = self._n_het.tolist()
 
         with open(os.path.join(_dir, "iter%d.json" % iteration),'w') as f:
