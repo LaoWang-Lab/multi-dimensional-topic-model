@@ -14,7 +14,7 @@ def printTopic(jsonFile, dictionary=dictionary, topNum=15):
     with open(jsonFile) as f:
         data = json.load(f)
     H, E, topic = data['H'], data['E'], np.array(data['topic'])
-    with open('M%d_topic.txt' % data['M'], 'wt') as f:
+    with open('H%d_E%d_M%d_topic.txt' % (H, E, data['M']), 'wt') as f:
         for h in range(H):
             f.write('h : %d\n' % h)
             for e in range(E):
