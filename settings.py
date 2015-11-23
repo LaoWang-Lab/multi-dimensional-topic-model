@@ -10,9 +10,10 @@ alpha = 1
 beta = 0.1
 gamma = 10
 
-docDir = 'docSrc'
+docDir = 'dataset/docword.enron.txt'
 outputDir = 'trainedTopic'
-dictionary = 'dictnostops.txt'
+dictionary = 'dataset/vocab.enron.txt'
+docset = 'bagOfWords'
 iter_max = 500
 run_num = 10
 

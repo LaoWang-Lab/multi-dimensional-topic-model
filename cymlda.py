@@ -4,7 +4,7 @@ import numpy as np
 import os, json, sys, re
 
 import _cymlda
-from settings import H, E, alpha, beta, gamma, docDir, outputDir, iter_max, run_num, dictionary
+from settings import H, E, alpha, beta, gamma, docDir, outputDir, iter_max, run_num, dictionary, docset
 
 PY2 = sys.version_info[0] == 2
 if PY2:
@@ -19,13 +19,19 @@ def n2s(counts):
 
 
 class mylda:
-    def __init__(self, H=H, E=E, dictionary=dictionary, docDir=docDir):
+    def __init__(self, H=H, E=E, dictionary=dictionary, docDir=docDir, docset=docset):
 
         self._dictionary = {x[:-1]:i for (i, x) in enumerate(open(dictionary))}
         self.T = len(self._dictionary)
 
-        self._docDir = docDir
-        self.M = len(os.listdir(docDir))
+        if docset == 'bagOfWords':
+            self._docset = docset
+            self._docDir = docDir # when docset is 'bagOfWords', corpus is cotanined in a single file, hence docDir is a filename(not a directory)
+            with open(docDir) as f:
+                self.M = int(f.readline()) # M value of this corpus is recorded in the first line of corpus file
+        else:
+            self._docDir = docDir
+            self.M = len(os.listdir(docDir))
 
         self._n_mh = np.zeros((self.M, H)) # counts for words in document m which were labeled as in dimension h
         self._n_het = np.zeros((H, E, self.T)) # counts for word type t in topic h,e
@@ -65,7 +71,7 @@ class mylda:
         self._n_he = self._n_he.astype(dtype=np.int32)
         self._n_het = self._n_het.astype(dtype=np.int32)
         self._z_mh = self._z_mh.astype(dtype=np.int32)
-        nmw = [None, None]
+        nmw = [None, None] 
         nmw[0] = [len(doc) for doc in self._w_mi]
         nmw[1] = [0] + nmw[0][:-1]
         cum = 0
@@ -85,10 +91,43 @@ class mylda:
         self._s_mi_ = np.asarray(self._s_mi_, dtype=np.int32)
 
     def readCorpus(self):
-        for i, docName in enumerate(os.listdir(self._docDir)):
-            if i % 20 == 0:
-                print('read docs: %d' % i)
-            self.readDoc(os.path.join(self._docDir, docName))
+        if self._docset == 'bagOfWords':
+
+            printFlag = True
+            for record in open(self._docDir).readlines()[3:]:
+                m, w, counts = [int(x) for x in record.split()]
+                m -= 1 # 1 in corpus file is corresponding to 0 in our model
+                w -= 1
+                if m%20 == 0 and printFlag:
+                    print('read doc %d' % m)
+                    printFlag = False
+                elif m%20 != 0:
+                    printFlag = True
+                self._w_mi[m].extend([w] * counts)
+                # self._w_mi_tmp[m] += [w] * counts
+
+            self.n_loaded = m
+
+            for m in range(self.M):
+                if m%20 == 0:
+                    print('initialize doc %d' % m)
+                self._w_mi[m] = np.random.permutation(np.array(self._w_mi[m]))
+                n = len(self._w_mi[m])
+                self._n_xmh[m] = np.random.multinomial(n, (1/H,)*H)
+                self._z_mh[m] = np.random.randint(E, size=H)
+                self._s_mi[m] = np.random.permutation(n2s(self._n_mh[m]))
+
+                for (s, z) in enumerate(self._z_mh[m]):
+                    self._n_he[s][z] += 1
+
+                for (i, s) in enumerate(self._s_mi[m]):
+                    self._n_het[s, self._z_mh[m,s], self._w_mi[m][i]] += 1
+
+        else:
+            for i, docName in enumerate(os.listdir(self._docDir)):
+                if i % 20 == 0:
+                    print('read docs: %d' % i)
+                self.readDoc(os.path.join(self._docDir, docName))
 
         self.list2np()
 
