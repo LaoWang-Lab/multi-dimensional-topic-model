@@ -64,3 +64,6 @@ localSettings.py
 
 _cymlda.c
 harvest*
+dataset/docword.nytimes.txt
+dataset/docword.nytimes.txt.gz
+dataset/vocab.nytimes.txt
