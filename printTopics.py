@@ -27,7 +27,7 @@ def printTopic(jsonFile, dictionary=dictionary, topNum=15):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-f', '--jsonFile', help='the file stores the result of topic', required=True)
-    parser.add_argument('-n', '--topNum', help='the number of words printed for each topic', default=15)    
+    parser.add_argument('-n', '--topNum', type=int, help='the number of words printed for each topic', default=15)    
     args = parser.parse_args()
     printTopic(jsonFile=args.jsonFile, topNum=args.topNum)
      
