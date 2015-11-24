@@ -98,7 +98,7 @@ class mylda:
             printFlag = True
             corpusFile = open(self._docDir).readlines()
             self.N_total_words = int(corpusFile[2])
-            self._w_mi_ = np.zeros(int(self.N_total_words*1.5), dtype=np.int32)
+            self._w_mi_ = np.zeros(int(self.N_total_words*5), dtype=np.int32)
             self._n_mw = np.zeros((2, self.M), dtype=np.int32)
             self.cum = 0
             for record in open(self._docDir).readlines()[3:]:
