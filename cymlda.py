@@ -133,7 +133,7 @@ class mylda:
                     self._n_he[s][z] += 1
 
                 for i,s in enumerate(self._s_mi_[self._n_mw[1,m]:self._n_mw[1,m]+self._n_mw[0,m]]):
-                    self._n_het[s, self._z_mh[m,s], self._w_mi_[i]] += 1
+                    self._n_het[s, self._z_mh[m,s], self._w_mi_[self._n_mw[1,m]+i]] += 1
 
         else:
             for i, docName in enumerate(os.listdir(self._docDir)):
